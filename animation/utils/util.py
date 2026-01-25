@@ -38,7 +38,27 @@ def save_videos_grid(videos: torch.Tensor, path: str, rescale=False, n_rows=6, f
         outputs.append(x)
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    imageio.mimsave(path, outputs, fps=fps)
+    
+    # 根据文件扩展名自动选择格式
+    if path.lower().endswith('.mp4'):
+        # 保存为MP4视频格式（使用H.264编码）
+        try:
+            imageio.mimsave(path, outputs, fps=fps, codec='libx264', quality=8, pixelformat='yuv420p')
+        except Exception as e:
+            # 如果MP4保存失败，尝试使用ffmpeg writer
+            try:
+                writer = imageio.get_writer(path, fps=fps, codec='libx264', quality=8)
+                for frame in outputs:
+                    writer.append_data(frame)
+                writer.close()
+            except Exception as e2:
+                print(f"Warning: Failed to save as MP4: {e2}. Falling back to GIF format.")
+                # 如果MP4失败，保存为GIF
+                gif_path = path.replace('.mp4', '.gif')
+                imageio.mimsave(gif_path, outputs, fps=fps)
+    else:
+        # 默认保存为GIF格式
+        imageio.mimsave(path, outputs, fps=fps)
 
 
 # DDIM Inversion

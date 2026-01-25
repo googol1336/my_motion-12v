@@ -677,10 +677,18 @@ class Drag:
             )
             ouput_video_list.append(outputs)
 
-        outputs_path = f"gradio/samples/output_{id}.gif"
-        save_videos_grid(outputs, outputs_path)
+        # 同时保存GIF和MP4两种格式
+        outputs_path_gif = f"gradio/samples/output_{id}.gif"
+        outputs_path_mp4 = f"gradio/samples/output_{id}.mp4"
+        
+        # 保存GIF（用于Gradio界面显示）
+        save_videos_grid(outputs, outputs_path_gif)
+        
+        # 保存MP4（用于下载和分享，质量更好）
+        save_videos_grid(outputs, outputs_path_mp4)
 
-        return visualized_drag[0], outputs_path
+        # 返回GIF路径用于Gradio显示，MP4文件也会同时保存
+        return visualized_drag[0], outputs_path_gif
 
 
 with gr.Blocks() as demo:
